@@ -6,35 +6,79 @@
 
 <img width="3333" height="2500" alt="graph-abstract_300DPI" src="https://github.com/user-attachments/assets/9c2c8c8d-a72c-44f3-9c03-b6223e3a37b1" />
 
-## Dataset
-The data used in this paper (esol/lipo/freesolv) are publicly available on /data/.
 
-## Environment
+## 🚀 Quick strat
+
+### 1. environment install
+
 * base dependencies:
  ```bash
  pip install -r requirements.txt
  ```
 
-## Usage
+### 2. Data prepration
 
-#### Quick Run
-For ESOL:
+The data used in this paper (esol/lipo/freesolv) are publicly available on Diff-SelfA-PepGSI/data/.
+
+Dataset1 in paper: data_all.csv; Dataset2 in paper: data_all_seq_and_label.csv
+
+Data Format for Dataset1：
+
+| List | Type | Note | Example |
+|------|------|------|------|
+| Seq | string | Amino acid sequence | YYKLVFFC |
+| Label | int | Self-assembly propertie | 0/1 |
+
+Data Format for Dataset2：
+
+| List | Type | Note | Example |
+|------|------|------|------|
+| Seq | string | Amino acid sequence | POGPOGPOGPOGPAGPOGPOGPOGPOGPOG |
+| Label | string | Morphological information | fiber |
+
+
+### 3. Split the dataset
+
 ```bash
-python train.py configs/esol.json
+python 5-Fold-Screening.py
 ```
-For FreeSolv:
 ```bash
-python train.py configs/freesolv.json
+python 5-Fold-Identification.py
 ```
-For Lipo:
+
+### 4. Train model
+
 ```bash
-python train.py configs/lipo.json
+python train.py --config configs/default.yaml
 ```
-For AqSolDB:
+
+### 5. Generate sequence
+
 ```bash
-python train.py configs/AqSolDB.json
+# Generate unconditionally
+python generate.py \
+  --checkpoint checkpoints/best_model.pt \
+  --num_samples 100 \
+  --seq_len 30 \
+  --guidance_scale 3.0 \
+  --output_dir results/unconditional
+
+# Generation of fixed secondary structures
+python generate.py \
+  --checkpoint checkpoints/best_model.pt \
+  --fix_structure \
+  --target_ss "H" \
+  --num_samples 50 \
+  --output_dir results/fixed_structure
+
+# Generation of objective constraints
+python generate.py \
+  --checkpoint checkpoints/best_model.pt \
+  --target_charge 5.0 \
+  --target_hydro -0.3 \
+  --num_samples 50 \
+  --seq_len 25 \
+  --output_dir results/target_properties
 ```
-For CASR-1:
-```bash
-python train.py configs/casr-1.json
-```
+
+---
