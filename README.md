@@ -49,36 +49,50 @@ python 5-Fold-Identification.py
 ### 4. Train model
 
 ```bash
-python train.py --config configs/default.yaml
+python gan_diff.py
+```
+```bash
+python SelfA_Classification.py
+```
+```bash
+python Identification-classification.py
 ```
 
 ### 5. Generate sequence
 
 ```bash
 # Generate unconditionally
-python generate.py \
-  --checkpoint checkpoints/best_model.pt \
-  --num_samples 100 \
-  --seq_len 30 \
-  --guidance_scale 3.0 \
-  --output_dir results/unconditional
-
-# Generation of fixed secondary structures
-python generate.py \
-  --checkpoint checkpoints/best_model.pt \
-  --fix_structure \
-  --target_ss "H" \
-  --num_samples 50 \
-  --output_dir results/fixed_structure
-
-# Generation of objective constraints
-python generate.py \
-  --checkpoint checkpoints/best_model.pt \
-  --target_charge 5.0 \
-  --target_hydro -0.3 \
-  --num_samples 50 \
-  --seq_len 25 \
-  --output_dir results/target_properties
+python gan_diff_generate.py \
+  --MAX_SEQ_LEN = 6 \
+  --num_outputs = 20000 \
+  --output_file = "seq_len6.txt"\
 ```
+
+### 6. Screening and Identification
+
+```bash
+# Screening
+python SelfA_Classification_Prediction.py \
+  --input_file = "seq_len6.txt"\
+  --output_file = "seq_len6_.txt"\
+  --pos_file = "pos_len6.txt"\
+```
+```bash
+# Identification
+python Identification-prediction.py \
+  --input_file = "pos_len6.txt"\
+  --output_file = "result_len6.txt"\
+```
+### 7. Retrieve the top 20 sequences by confidence score for each category
+
+```bash
+# Screening
+python confidence-max.py \
+  --input_file = "result_len6.txt"\  
+  --output_file = "top20_per_class_len6.txt"  
+```
+
+
+
 
 ---
